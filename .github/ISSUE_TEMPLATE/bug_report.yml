@@ -1,0 +1,46 @@
+name: Bug report
+description: Something went wrong or a log looks wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please remove tokens, passwords and private paths from anything you paste.
+        For security problems, use **Security → Report a vulnerability** instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got.
+    validations:
+      required: true
+  - type: textarea
+    id: debug
+    attributes:
+      label: Debug log
+      description: Matching lines from `~/.claude/hooks-logs/<date>.jsonl` (look for `"hook":"session-logger"`).
+      render: json
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11 / macOS 15 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version (`node --version`)
+    validations:
+      required: true
+  - type: input
+    id: claude
+    attributes:
+      label: Claude Code version (`claude --version`)
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: session-logger version
+      description: From `.claude-plugin/plugin.json`, or `/plugin` inside Claude Code.

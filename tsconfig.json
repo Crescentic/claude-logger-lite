@@ -1,0 +1,34 @@
+{
+  // Type checking only: Node runs the .ts files directly by stripping types,
+  // so nothing is ever emitted.
+  "compilerOptions": {
+    "noEmit": true,
+
+    // Node strips types without transforming code, so what we write is what
+    // runs. `lib` and @types/node are pinned to the oldest supported runtime
+    // (Node 22), so using a newer API is a type error, not a crash for users.
+    "target": "esnext",
+    "lib": ["es2024"],
+    "types": ["node"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    // Only syntax Node can strip: no enums, namespaces or parameter properties,
+    // `.ts` extensions in imports, and `import type` for type-only imports.
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+
+    // Also check the plain-JavaScript hook launcher.
+    "allowJs": true,
+    "checkJs": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+  "include": ["scripts", "tests"]
+}

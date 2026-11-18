@@ -1,0 +1,10 @@
+{
+  "name": "session-logger",
+  "version": "0.1.0",
+  "description": "Writes a Markdown log of each Claude Code session: files touched, commands run, and the final git status.",
+  "author": { "name": "Crescentic", "url": "https://github.com/Crescentic" },
+  "homepage": "https://github.com/Crescentic/claude-logger-lite#readme",
+  "repository": "https://github.com/Crescentic/claude-logger-lite",
+  "license": "MIT",
+  "keywords": ["logging", "sessions", "audit", "hooks"]
+}

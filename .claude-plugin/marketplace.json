@@ -1,0 +1,12 @@
+{
+  "name": "session-logger",
+  "description": "Crescentic's session-logger plugin for Claude Code.",
+  "owner": { "name": "Crescentic" },
+  "plugins": [
+    {
+      "name": "session-logger",
+      "source": "./",
+      "description": "Writes a Markdown log of each Claude Code session."
+    }
+  ]
+}
