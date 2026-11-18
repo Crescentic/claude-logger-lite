@@ -47,4 +47,8 @@ jobs:
         with:
           node-version: latest
       - run: npm install -g @anthropic-ai/claude-code
+      # The package downloads its native binary in a postinstall step, which
+      # newer npm versions can skip; run it explicitly.
+      - run: node "$(npm root -g)/@anthropic-ai/claude-code/install.cjs"
+      - run: claude --version
       - run: claude plugin validate .
