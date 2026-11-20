@@ -37,6 +37,7 @@ but the code must still run on 22.18 (see [TypeScript](#typescript)).
 | `npm test` | Runs the tests with `node --test` |
 | `npm run typecheck` | Runs `tsc`, checking types only (nothing is emitted) |
 | `npm run check` | Both of the above |
+| `npm run stress` | Opt-in: 50 parallel hooks x 5 rounds, checks no event line is torn or lost (`SESSION_LOGGER_STRESS_HOOKS` / `_ROUNDS` change the size) |
 
 To try your change in a real session:
 

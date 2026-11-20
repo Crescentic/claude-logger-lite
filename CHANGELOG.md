@@ -10,6 +10,11 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Added
+
+- Opt-in stress test for parallel appends to the event file (`npm run stress`,
+  or the manual **Stress test** workflow to run it on Windows, macOS and Linux).
+
 ## [0.2.0] - 2026-11-20
 
 First public release.
