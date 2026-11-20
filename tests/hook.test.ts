@@ -241,6 +241,36 @@ test("a damaged event file is rebuilt with the events that can still be read", (
   assert.match(md, /logging began mid-session/)
 })
 
+// ---------- leftover temp files ----------
+
+test("a start hook removes old leftover temp files and keeps the rest", () => {
+  const box = sandbox()
+  const base = { session_id: ID, cwd: box.project }
+  hook(box, "start", { ...base, source: "startup" })
+
+  const logFolder = path.join(box.project, "docs", "sessions", "logs")
+  const stateFolder = path.dirname(eventFile(box))
+  const old = new Date(Date.now() - 60 * 60 * 1000)
+  const make = (dir: string, name: string, aged: boolean): string => {
+    const file = path.join(dir, name)
+    fs.writeFileSync(file, "x")
+    if (aged) fs.utimesSync(file, old, old)
+    return file
+  }
+  const oldLog = make(logFolder, "2026-01-01_0000_abcd1234.md.4242.tmp", true)
+  const newLog = make(logFolder, "2026-01-01_0000_abcd1234.md.4243.tmp", false)
+  const oldState = make(stateFolder, `${ID}.jsonl.4242.tmp`, true)
+  const newState = make(stateFolder, `${ID}.jsonl.4243.tmp`, false)
+  const otherOld = make(logFolder, "notes.tmp", true)
+  const otherOld2 = make(logFolder, "draft.abc.tmp", true)
+
+  hook(box, "start", { ...base, source: "resume" })
+
+  assert.equal(fs.existsSync(oldLog), false)
+  assert.equal(fs.existsSync(oldState), false)
+  for (const f of [newLog, newState, otherOld, otherOld2]) assert.equal(fs.existsSync(f), true, f)
+})
+
 // ---------- never creating folders that don't exist ----------
 
 test("a session in a folder that doesn't exist creates nothing", () => {
