@@ -47,6 +47,15 @@ export function appendEvent(file: string, event: SessionEvent): void {
 
 function ensureLogDir(env: Env, dir: string): void {
   fs.mkdirSync(dir, { recursive: true })
+  ensureGitignore(env, dir)
+}
+
+/**
+ * Makes sure `dir` has a `.gitignore`, without touching one that exists.
+ * Called on every log write, so a deleted file comes back even for sessions
+ * that are already running.
+ */
+export function ensureGitignore(env: Env, dir: string): void {
   // Commands can hold tokens, so the logs keep themselves out of git unless
   // the team opts in.
   if (env.SESSION_LOGGER_GITIGNORE === "0") return

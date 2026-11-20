@@ -290,6 +290,33 @@ test("SESSION_LOGGER_DIR moves the logs, and they ignore themselves in git", () 
   assert.equal(fs.readFileSync(path.join(dir, ".gitignore"), "utf8"), "*\n")
 })
 
+test("a deleted .gitignore comes back on the next write, and an edited one is kept", () => {
+  const box = sandbox()
+  const base = { session_id: ID, cwd: box.project }
+  const dir = path.join(box.project, "docs", "sessions", "logs")
+  const ignore = path.join(dir, ".gitignore")
+  const bash = { ...base, tool_name: "Bash", tool_input: { command: "ls" } }
+  hook(box, "start", base)
+
+  fs.rmSync(ignore)
+  hook(box, "tool", bash)
+  assert.equal(fs.readFileSync(ignore, "utf8"), "*\n")
+
+  fs.writeFileSync(ignore, "*.md\n")
+  hook(box, "tool", bash)
+  assert.equal(fs.readFileSync(ignore, "utf8"), "*.md\n")
+})
+
+test("SESSION_LOGGER_GITIGNORE=0 never writes a .gitignore, even after a delete", () => {
+  const box = sandbox()
+  const base = { session_id: ID, cwd: box.project }
+  const env = { SESSION_LOGGER_GITIGNORE: "0" }
+  const ignore = path.join(box.project, "docs", "sessions", "logs", ".gitignore")
+  hook(box, "start", base, env)
+  hook(box, "tool", { ...base, tool_name: "Bash", tool_input: { command: "ls" } }, env)
+  assert.equal(fs.existsSync(ignore), false)
+})
+
 test("SESSION_LOGGER_DISABLE=1 writes nothing", () => {
   const box = sandbox()
   hook(box, "start", { session_id: ID, cwd: box.project }, { SESSION_LOGGER_DISABLE: "1" })
