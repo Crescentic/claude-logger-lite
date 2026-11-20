@@ -99,7 +99,7 @@ export function handle(event: string | undefined, input: HookInput, env: Env): v
       type: "end",
       t: new Date().toISOString(),
       reason: input.reason ?? "",
-      ...(start ? finalStatus(start.root) : { gitStatus: null, gitError: "session details missing" }),
+      ...(start ? finalStatus(start.root, start.log) : { gitStatus: null, gitError: "session details missing" }),
     })
     writeLog(env, file)
     debugLog(env, { level: "END", session_id: id, file: start?.log })

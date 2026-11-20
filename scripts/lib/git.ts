@@ -56,13 +56,25 @@ export function projectInfo(cwd: string): { root: string; repo: string; branch: 
 
 export type FinalStatus = { gitStatus: string } | { gitStatus: null; gitError: string }
 
+/** Path of `file` relative to `root` in git's notation, or null when outside. */
+function relativeInside(root: string, file: string): string | null {
+  const rel = path.relative(root, file)
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null
+  return rel.split(path.sep).join("/")
+}
+
 /**
  * `git status --short` at the end of a session. An empty string means clean;
  * `null` means it couldn't be read, with the reason in `gitError`.
+ * `exclude` is a file (the session's own log) left out of the listing, so it
+ * doesn't show up as noise when the log folder doesn't ignore itself.
  */
-export function finalStatus(root: string): FinalStatus {
+export function finalStatus(root: string, exclude?: string): FinalStatus {
   if (!fs.existsSync(root)) return { gitStatus: null, gitError: "the project folder no longer exists" }
-  const status = runGit(root, ["status", "--short"])
+  const args = ["status", "--short"]
+  const rel = exclude ? relativeInside(root, exclude) : null
+  if (rel) args.push("--", ".", `:(exclude)${rel}`)
+  const status = runGit(root, args)
   if (status.ok) return { gitStatus: status.out }
   if (status.reason === "missing") return { gitStatus: null, gitError: "git was not found" }
   if (status.reason === "timeout") return { gitStatus: null, gitError: "git status timed out" }
