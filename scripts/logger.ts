@@ -7,6 +7,7 @@
 // The pieces live in ./lib: types, paths, git, files (locking, safe writes),
 // store (event files), render (Markdown) and write (rebuilding the log).
 
+import path from "node:path"
 import { finalStatus } from "./lib/git.ts"
 import { debugLog } from "./lib/paths.ts"
 import { appendEvent, ensureSession, pruneOldState, readEvents } from "./lib/store.ts"
@@ -67,7 +68,8 @@ export function handle(event: string | undefined, input: HookInput, env: Env): v
     if (!created) {
       appendEvent(file, { type: "resume", t: new Date().toISOString(), source: input.source ?? "" })
     }
-    pruneOldState(env)
+    const log = ofType(readEvents(file), "start")[0]?.log
+    pruneOldState(env, log ? path.dirname(log) : undefined)
     writeLog(env, file)
     return
   }

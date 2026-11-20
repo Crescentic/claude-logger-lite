@@ -10,6 +10,12 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Fixed
+
+- Leftover `<name>.<pid>.tmp` files from interrupted log writes are now removed
+  on session start, in the log folder and the event store, once they are more
+  than five minutes old.
+
 ## [0.2.0] - 2026-11-20
 
 First public release.

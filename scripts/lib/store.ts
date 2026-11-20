@@ -21,6 +21,10 @@ const STATE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000
 // An event file without a start line is only treated as damaged once it's this
 // old. A younger one may be mid-creation by a parallel hook.
 const REPAIR_MIN_AGE_MS = 5_000
+// Leftover `<name>.<pid>.tmp` files (see writeFileAtomic) from a killed hook.
+// Younger ones may belong to a write still in progress.
+const TEMP_FILE = /^.+\.\d+\.tmp$/
+const TEMP_MAX_AGE_MS = 5 * 60 * 1000
 
 export function readEvents(file: string): SessionEvent[] {
   let text: string
@@ -189,8 +193,29 @@ export function ensureSession(
   return { file, created: true }
 }
 
-/** Deletes event files untouched for 30 days. Never throws. */
-export function pruneOldState(env: Env): void {
+/** Deletes stale `<name>.<digits>.tmp` files in `dir`, leaving all else alone. Never throws. */
+export function pruneTempFiles(dir: string): void {
+  try {
+    const cutoff = Date.now() - TEMP_MAX_AGE_MS
+    for (const name of fs.readdirSync(dir)) {
+      if (!TEMP_FILE.test(name)) continue
+      const file = path.join(dir, name)
+      try {
+        const stat = fs.statSync(file)
+        if (stat.isFile() && stat.mtimeMs < cutoff) fs.rmSync(file, { force: true })
+      } catch {
+        // Gone already, or not ours to delete.
+      }
+    }
+  } catch {
+    // No such folder.
+  }
+}
+
+/** Deletes event files untouched for 30 days, and stale temp files. Never throws. */
+export function pruneOldState(env: Env, logFolder?: string): void {
+  pruneTempFiles(stateDir(env))
+  if (logFolder) pruneTempFiles(logFolder)
   try {
     const dir = stateDir(env)
     const cutoff = Date.now() - STATE_MAX_AGE_MS
