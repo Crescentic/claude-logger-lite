@@ -8,6 +8,6 @@ discussion about the work.
 ## Reporting
 
 Report unacceptable behaviour to the maintainers at
-**TODO: add a contact email before publishing**. Reports are handled
+[uttam@crescentic.com](mailto:uttam@crescentic.com). Reports are handled
 confidentially. Maintainers may remove comments, commits or issues that
 break this code, and may ban contributors who repeatedly do so.

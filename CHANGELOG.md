@@ -10,6 +10,10 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-20
+
+First public release.
+
 ### Changed
 
 - **Breaking:** requires Node.js 22.18 or later (was 20). The plugin is now
@@ -36,7 +40,9 @@ installed copies need updating, so every release bumps it there and in
 - A session whose working folder doesn't exist no longer creates that folder,
   and a project deleted mid-session is no longer recreated to hold its log.
 
-## [0.1.0] - 2026-11-13
+## 0.1.0 - 2026-11-13
+
+Internal release, not published.
 
 ### Added
 
@@ -45,5 +51,5 @@ installed copies need updating, so every release bumps it there and in
 - Settings: `SESSION_LOGGER_DIR`, `SESSION_LOGGER_GITIGNORE`,
   `SESSION_LOGGER_MAX_COMMAND`, `SESSION_LOGGER_DISABLE`.
 
-[Unreleased]: https://github.com/Crescentic/claude-logger-lite/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Crescentic/claude-logger-lite/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Crescentic/claude-logger-lite/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Crescentic/claude-logger-lite/releases/tag/v0.2.0
