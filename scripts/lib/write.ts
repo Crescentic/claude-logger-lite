@@ -5,7 +5,7 @@ import path from "node:path"
 import { isInside, withLock, writeFileAtomic } from "./files.ts"
 import { debugLog } from "./paths.ts"
 import { render } from "./render.ts"
-import { readEvents } from "./store.ts"
+import { ensureGitignore, readEvents } from "./store.ts"
 import { ofType, type Env } from "./types.ts"
 
 /** Renders the events in `file` to the session's Markdown log. */
@@ -21,7 +21,9 @@ export function writeLog(env: Env, file: string): void {
       return
     }
     const maxCommand = Number(env.SESSION_LOGGER_MAX_COMMAND) || 500
-    fs.mkdirSync(path.dirname(start.log), { recursive: true })
+    const dir = path.dirname(start.log)
+    fs.mkdirSync(dir, { recursive: true })
+    ensureGitignore(env, dir)
     writeFileAtomic(start.log, render(events, { maxCommand }))
   })
 }

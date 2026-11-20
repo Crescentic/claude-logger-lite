@@ -10,6 +10,12 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Fixed
+
+- The log folder's `.gitignore` is recreated on the next log write if it was
+  deleted, instead of only when a new session starts. A `.gitignore` you have
+  edited is left alone.
+
 ## [0.2.0] - 2026-11-20
 
 First public release.
