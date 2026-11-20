@@ -204,6 +204,56 @@ test("a clean repository is reported as clean", { skip: !HAS_GIT && "git not ins
   assert.match(md, /\*\*Final git status:\*\*\n```\nclean\n```/)
 })
 
+const GITIGNORE_OFF = { SESSION_LOGGER_GITIGNORE: "0" }
+
+/** The fenced block under **Final git status:** in a log. */
+function statusBlock(md: string): string {
+  return /\*\*Final git status:\*\*\n```\n([\s\S]*?)\n```/.exec(md)?.[1] ?? ""
+}
+
+function committedProject(box: Sandbox): void {
+  spawnSync("git", ["init", "-q"], { cwd: box.project })
+  fs.writeFileSync(path.join(box.project, "tracked.txt"), "one\n")
+  spawnSync("git", ["add", "."], { cwd: box.project })
+  spawnSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-qm", "init"], {
+    cwd: box.project,
+  })
+}
+
+test("with the gitignore off, the session's own log stays out of the final status", { skip: !HAS_GIT && "git not installed" }, () => {
+  const box = sandbox()
+  committedProject(box)
+  hook(box, "start", { session_id: ID, cwd: box.project }, GITIGNORE_OFF)
+  fs.writeFileSync(path.join(box.project, "tracked.txt"), "two\n")
+  hook(box, "end", { session_id: ID, cwd: box.project }, GITIGNORE_OFF)
+  const [md = ""] = logs(box)
+  const status = statusBlock(md)
+  assert.match(status, /tracked\.txt/, "real changes are still reported")
+  assert.doesNotMatch(status, /docs\/sessions\/logs/, "the log's own line must be filtered out")
+})
+
+test("with the gitignore off, a log that is the only change still reads clean", { skip: !HAS_GIT && "git not installed" }, () => {
+  const box = sandbox()
+  committedProject(box)
+  hook(box, "start", { session_id: ID, cwd: box.project }, GITIGNORE_OFF)
+  hook(box, "end", { session_id: ID, cwd: box.project }, GITIGNORE_OFF)
+  const [md = ""] = logs(box)
+  assert.match(md, /\*\*Final git status:\*\*\n```\nclean\n```/)
+})
+
+test("a log in a custom folder inside the project stays out of the final status", { skip: !HAS_GIT && "git not installed" }, () => {
+  const box = sandbox()
+  committedProject(box)
+  const env = { ...GITIGNORE_OFF, SESSION_LOGGER_DIR: "notes/claude" }
+  hook(box, "start", { session_id: ID, cwd: box.project }, env)
+  fs.writeFileSync(path.join(box.project, "tracked.txt"), "two\n")
+  hook(box, "end", { session_id: ID, cwd: box.project }, env)
+  const [md = ""] = logs(box, path.join(box.project, "notes", "claude"))
+  const status = statusBlock(md)
+  assert.match(status, /tracked\.txt/, "real changes are still reported")
+  assert.doesNotMatch(status, /notes\/claude/, "the log's own line must be filtered out")
+})
+
 // ---------- recovering the event file ----------
 
 test("a session whose event file is gone keeps its log and its entries", () => {

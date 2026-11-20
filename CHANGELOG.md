@@ -10,6 +10,12 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Fixed
+
+- With `SESSION_LOGGER_GITIGNORE=0`, the session's own log no longer appears
+  in the **Final git status** section; when it is the only change the section
+  says `clean`.
+
 ## [0.2.0] - 2026-11-20
 
 First public release.
