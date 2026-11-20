@@ -10,6 +10,12 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Documentation
+
+- README and SECURITY now say that the event files in
+  `~/.claude/session-logger/sessions/` keep full commands for 30 days, and how
+  to delete them sooner.
+
 ## [0.2.0] - 2026-11-20
 
 First public release.

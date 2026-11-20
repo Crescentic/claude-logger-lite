@@ -28,3 +28,8 @@ Only the latest release gets fixes.
 
 - Secrets that appear in a log because Claude ran a command containing them.
   That is documented behaviour; the log folder ignores itself in git by default.
+  The same goes for the event files in `~/.claude/session-logger/sessions/`,
+  which keep the full command for 30 days after the session's last activity,
+  whatever `SESSION_LOGGER_MAX_COMMAND` is set to. Delete a session's `.jsonl`
+  file there to remove it sooner. Masking secrets is tracked in
+  [#2](https://github.com/Crescentic/claude-logger-lite/issues/2).

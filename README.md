@@ -105,6 +105,17 @@ Set these as environment variables, or in the `env` block of
 Commands are written as Claude ran them, so a token pasted into a command lands
 in the log. That is why the log folder ignores itself in git by default.
 
+**A second copy of every command.** The event files in
+`~/.claude/session-logger/sessions/` hold the **full text** of each command.
+They are kept for 30 days after the session's last activity, whatever the other
+settings say: `SESSION_LOGGER_MAX_COMMAND` only shortens commands in the
+Markdown log, and `SESSION_LOGGER_DIR` and the log folder's `.gitignore` don't
+apply, because the event files always live in your Claude config folder. If a
+command contained a token or password, remove it sooner by deleting that
+session's `.jsonl` file there. The Markdown log is unaffected. Masking secrets,
+which would cover both copies, is tracked in
+[#2](https://github.com/Crescentic/claude-logger-lite/issues/2).
+
 ## How it works
 
 Four hooks call `scripts/hook.mjs`, which loads `scripts/logger.ts`: `SessionStart`, `PostToolUse` (for the
@@ -112,7 +123,8 @@ tools above), `Stop` (after each reply, to update `last_activity`) and
 `SessionEnd`. Each event is appended to a small file in
 `~/.claude/session-logger/sessions/`, and the Markdown log is rebuilt from
 it, so hooks that fire at once (parallel tool calls) don't lose entries. Those
-event files are deleted after 30 days.
+event files keep full commands (see above) and are deleted 30 days after the
+session's last activity.
 
 - A session that started before the plugin was installed gets a log from its
   first tracked tool call, marked "logging began mid-session".
