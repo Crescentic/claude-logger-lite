@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node --test",
     "typecheck": "tsc -p .",
+    "stress": "node tests/stress.ts",
     "check": "npm run typecheck && npm test"
   },
   "engines": {
