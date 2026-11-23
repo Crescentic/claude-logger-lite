@@ -46,7 +46,7 @@ claude plugin validate /path/to/claude-logger-lite
 ```
 
 Logs appear under `docs/sessions/logs/` in the project you open. If something
-goes wrong, look in `~/.claude/hooks-logs/<date>.jsonl`.
+goes wrong, look in `~/.claude/session-logger/debug/<date>.jsonl`.
 
 ## Layout
 
