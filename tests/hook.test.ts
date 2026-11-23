@@ -241,6 +241,57 @@ test("a damaged event file is rebuilt with the events that can still be read", (
   assert.match(md, /logging began mid-session/)
 })
 
+// ---------- debug log retention ----------
+
+test("a start hook prunes only old daily debug logs in its own folder", () => {
+  const box = sandbox()
+  const dir = path.join(box.config, "session-logger", "debug")
+  const shared = path.join(box.config, "hooks-logs")
+  fs.mkdirSync(dir, { recursive: true })
+  fs.mkdirSync(shared)
+  const old = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000)
+  const recent = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000)
+  const make = (folder: string, name: string, modified: Date): string => {
+    const file = path.join(folder, name)
+    fs.writeFileSync(file, "keep unless expired")
+    fs.utimesSync(file, modified, modified)
+    return file
+  }
+  const oldLog = make(dir, "2000-01-01.jsonl", old)
+  const recentLog = make(dir, "2000-01-02.jsonl", recent)
+  const unrelated = make(dir, "notes.jsonl", old)
+  const sharedLog = make(shared, "2000-01-01.jsonl", old)
+  const directory = path.join(dir, "1999-01-01.jsonl")
+  fs.mkdirSync(directory)
+  fs.utimesSync(directory, old, old)
+
+  hook(box, "start", { session_id: ID, cwd: box.project })
+
+  assert.equal(fs.existsSync(oldLog), false)
+  for (const file of [recentLog, unrelated, sharedLog]) {
+    assert.equal(fs.readFileSync(file, "utf8"), "keep unless expired")
+  }
+  assert.equal(fs.statSync(directory).isDirectory(), true)
+  const [dailyLog, ...rest] = fs.readdirSync(dir).filter((name) =>
+    !["2000-01-02.jsonl", "notes.jsonl", "1999-01-01.jsonl"].includes(name)
+  )
+  assert.ok(dailyLog)
+  assert.equal(rest.length, 0)
+  assert.match(fs.readFileSync(path.join(dir, dailyLog), "utf8"), /"level":"START"/)
+})
+
+test("an inaccessible debug folder does not stop a session from being logged", () => {
+  const box = sandbox()
+  const dir = path.join(box.config, "session-logger", "debug")
+  fs.mkdirSync(path.dirname(dir), { recursive: true })
+  fs.writeFileSync(dir, "not a directory")
+
+  hook(box, "start", { session_id: ID, cwd: box.project })
+
+  assert.equal(logs(box).length, 1)
+  assert.equal(fs.readFileSync(dir, "utf8"), "not a directory")
+})
+
 // ---------- never creating folders that don't exist ----------
 
 test("a session in a folder that doesn't exist creates nothing", () => {
@@ -265,9 +316,10 @@ test("on a Node that can't run TypeScript, the hook exits 0 and says why", () =>
   const box = sandbox()
   hook(box, "start", { session_id: ID, cwd: box.project }, {}, ["--no-experimental-strip-types"])
   assert.deepEqual(logs(box), [])
-  const dir = path.join(box.config, "hooks-logs")
+  const dir = path.join(box.config, "session-logger", "debug")
   const debug = fs.readdirSync(dir).map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("")
   assert.match(debug, /"level":"ERROR".*needs Node 22\.18 or later/)
+  assert.equal(fs.existsSync(path.join(box.config, "hooks-logs")), false)
 })
 
 test("tools it doesn't track leave nothing behind", () => {

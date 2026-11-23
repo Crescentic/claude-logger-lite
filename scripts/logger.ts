@@ -8,7 +8,7 @@
 // store (event files), render (Markdown) and write (rebuilding the log).
 
 import { finalStatus } from "./lib/git.ts"
-import { debugLog } from "./lib/paths.ts"
+import { debugLog, pruneOldDebugLogs } from "./lib/paths.ts"
 import { appendEvent, ensureSession, pruneOldState, readEvents } from "./lib/store.ts"
 import {
   ofType,
@@ -68,6 +68,7 @@ export function handle(event: string | undefined, input: HookInput, env: Env): v
       appendEvent(file, { type: "resume", t: new Date().toISOString(), source: input.source ?? "" })
     }
     pruneOldState(env)
+    pruneOldDebugLogs(env)
     writeLog(env, file)
     return
   }

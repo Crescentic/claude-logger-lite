@@ -133,7 +133,10 @@ event files are deleted after 30 days.
   plugin never creates a project folder just to hold a log.
 - The hook never fails or slows a session on purpose: errors are swallowed,
   and it always exits 0. Problems go to
-  `~/.claude/hooks-logs/<date>.jsonl` (`level: "ERROR"` or `"SKIP"`).
+  `~/.claude/session-logger/debug/<date>.jsonl` (`level: "ERROR"` or `"SKIP"`).
+  Daily debug logs untouched for 30 days are deleted on session start.
+  Existing files in the old, shared `~/.claude/hooks-logs/` folder are left
+  alone because they may also contain output from other hooks.
 
 ## Contributing
 

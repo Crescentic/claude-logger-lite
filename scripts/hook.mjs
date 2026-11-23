@@ -27,7 +27,7 @@ function readStdin() {
 function noteFailure(reason) {
   try {
     const config = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude")
-    const dir = path.join(config, "hooks-logs")
+    const dir = path.join(config, "session-logger", "debug")
     fs.mkdirSync(dir, { recursive: true })
     const ts = new Date().toISOString()
     const line = JSON.stringify({ ts, hook: "session-logger", level: "ERROR", event: process.argv[2], error: reason })

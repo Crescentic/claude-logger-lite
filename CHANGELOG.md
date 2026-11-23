@@ -10,6 +10,12 @@ installed copies need updating, so every release bumps it there and in
 
 ## [Unreleased]
 
+### Fixed
+
+- Daily debug logs now live in `~/.claude/session-logger/debug/` and are
+  deleted on session start after 30 days without changes. Existing files in
+  the shared `~/.claude/hooks-logs/` folder are left untouched.
+
 ## [0.2.0] - 2026-11-20
 
 First public release.
